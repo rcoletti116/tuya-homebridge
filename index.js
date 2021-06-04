@@ -111,6 +111,7 @@ class TuyaPlatform {
       case 'dj':
       case 'fwd':
       case 'xdd':
+      case 'tgq':  
         deviceAccessory = new LightAccessory(this, homebridgeAccessory, device);
         this.accessories.set(uuid, deviceAccessory.homebridgeAccessory);
         this.deviceAccessories.set(uuid, deviceAccessory);
