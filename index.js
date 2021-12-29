@@ -13,7 +13,6 @@ const WindowCoveringAccessory = require('./lib/window_covering_accessory')
 const ContactSensorAccessory = require('./lib/contactsensor_accessory');
 const LeakSensorAccessory = require('./lib/leak_sensor_accessory')
 
-const LogUtil = require('./util/logutil')
 const DataUtil = require('./util/datautil')
 
 var Accessory, Service, Characteristic;
@@ -29,12 +28,10 @@ module.exports = function (homebridge) {
 // Accessory constructor
 class TuyaPlatform {
   constructor(log, config, api) {
-    this.log = new LogUtil(
-      config.options.debug,
-    );
+    this.log = log;
     this.config = config;
     if (!config || !config.options) {
-      this.log.log('The config configuration is incorrect, disabling plugin.')
+      this.log.info('The config configuration is incorrect, disabling plugin.')
       return;
     }
     this.deviceAccessories = new Map();
@@ -47,7 +44,7 @@ class TuyaPlatform {
       // Platform Plugin should only register new accessory that doesn't exist in homebridge after this event.
       // Or start discover new accessories.
       this.api.on('didFinishLaunching', function () {
-        this.log.log("Initializing TuyaPlatform...");
+        this.log.info('Initializing TuyaPlatform...')
         this.initTuyaSDK(config);
       }.bind(this));
     }
@@ -70,8 +67,8 @@ class TuyaPlatform {
       try {
         devices = await api.getDeviceList();
       } catch (e) {
-        // this.log.log(JSON.stringify(e.message));
-        this.log.log('Failed to get device information. Please check if the config.json is correct.')
+        // this.log(JSON.stringify(e.message));
+        this.log.info('Failed to get device information. Please check if the config.json is correct.')
         return;
       }
     } else {
@@ -89,8 +86,8 @@ class TuyaPlatform {
       try {
         devices = await api.getDevices()
       } catch (e) {
-        // this.log.log(JSON.stringify(e.message));
-        this.log.log('Failed to get device information. Please check if the config.json is correct.')
+        // this.log(JSON.stringify(e.message));
+        this.log.info('Failed to get device information. Please check if the config.json is correct.')
         return;
       }
     }
@@ -108,7 +105,7 @@ class TuyaPlatform {
 
   addAccessory(device) {
     var deviceType = device.category;
-    this.log.log(`Adding: ${device.name || 'unnamed'} (${deviceType} / ${device.id})`);
+    this.log.info(`Adding: ${device.name || 'unnamed'} (${deviceType} / ${device.id})`);
     // Get UUID
     const uuid = this.api.hap.uuid.generate(device.id);
     const homebridgeAccessory = this.accessories.get(uuid);
@@ -218,7 +215,7 @@ class TuyaPlatform {
 
   // Called from device classes
   registerPlatformAccessory(platformAccessory) {
-    this.log.log(`Register Platform Accessory ${platformAccessory.displayName}`);
+    this.log.info(`Register Platform Accessory ${platformAccessory.displayName}`);
     this.api.registerPlatformAccessories('homebridge-tuya-platform', 'TuyaPlatform', [platformAccessory]);
   }
 
@@ -241,7 +238,7 @@ class TuyaPlatform {
   // Sample function to show how developer can remove accessory dynamically from outside event
   removeAccessory(accessory) {
     if (accessory) {
-      this.log.log(`Remove Accessory ${accessory}`);
+      this.log.info(`Remove Accessory ${accessory}`);
       this.api.unregisterPlatformAccessories("homebridge-tuya-platform", "TuyaPlatform", [accessory]);
       this.accessories.delete(accessory.uuid);
       this.deviceAccessories.delete(accessory.uuid);
